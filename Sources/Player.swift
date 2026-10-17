@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 
 extension Notification.Name {
-    static let cinemaPlaybackEnded = Notification.Name("cinemaPlaybackEnded")
+    static let candelaPlaybackEnded = Notification.Name("candelaPlaybackEnded")
 }
 
 /// Track choice: remembers the last language picked, and within a language prefers the best-sounding track.
@@ -76,7 +76,7 @@ final class MPVPlayer: ObservableObject {
     }
 
     static var supportDir: URL {
-        let d = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Cinema")
+        let d = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Candela")
         try? FileManager.default.createDirectory(at: d.appendingPathComponent("mpv"), withIntermediateDirectories: true)
         return d
     }
@@ -105,7 +105,7 @@ final class MPVPlayer: ObservableObject {
             "--log-file=\(Self.supportDir.appendingPathComponent("mpv.log").path)",
             "--msg-level=all=info,vo=v",
         ]
-        if let conf = Bundle.main.url(forResource: "cinema", withExtension: "conf") {
+        if let conf = Bundle.main.url(forResource: "candela", withExtension: "conf") {
             args.insert("--include=\(conf.path)", at: 0)
         }
         let start = fromStart ? 0 : Double(item.resumeTicks) / 10_000_000
@@ -186,7 +186,7 @@ final class MPVPlayer: ObservableObject {
         // Give Jellyfin a moment to store the position before the views reload.
         Task {
             try? await Task.sleep(nanoseconds: 800_000_000)
-            NotificationCenter.default.post(name: .cinemaPlaybackEnded, object: nil)
+            NotificationCenter.default.post(name: .candelaPlaybackEnded, object: nil)
         }
     }
 

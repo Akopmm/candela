@@ -1,12 +1,12 @@
 import SwiftUI
 
 @main
-struct CinemaApp: App {
+struct CandelaApp: App {
     @StateObject private var api = Jellyfin.shared
     @StateObject private var player = MPVPlayer.shared
 
     var body: some Scene {
-        WindowGroup("Cinema") {
+        WindowGroup("Candela") {
             RootView()
                 .environmentObject(api)
                 .environmentObject(player)
@@ -30,7 +30,10 @@ struct RootView: View {
             case .ready: MainView()
             }
         }
-        .task { await api.bootstrap() }
+        .task {
+            await api.bootstrap()
+            if Screenshots.active { await Screenshots.run(api: api) }
+        }
     }
 }
 
@@ -175,7 +178,32 @@ struct LoginView: View {
 
 // MARK: - Shell
 
-enum Section: Hashable { case home, movies, shows, search }
+enum Section: Hashable {
+    case home, movies, shows, search
+    static let all: [Section] = [.home, .movies, .shows, .search]
+    var title: String { ["Home", "Movies", "Shows", "Search"][Self.all.firstIndex(of: self)!] }
+    var icon: String { ["house", "film", "tv", "magnifyingglass"][Self.all.firstIndex(of: self)!] }
+}
+
+struct ShotSidebar: View {
+    @Binding var section: Section?
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(Section.all, id: \.self) { s in
+                Label(s.title, systemImage: s.icon)
+                    .font(.system(size: 13))
+                    .foregroundStyle(section == s ? Color.white : Color.primary)
+                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(section == s ? Color.accentColor : .clear, in: RoundedRectangle(cornerRadius: 6))
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 10).padding(.top, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(white: 0.155))
+    }
+}
 
 struct MainView: View {
     @EnvironmentObject var api: Jellyfin
@@ -185,11 +213,15 @@ struct MainView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $section) {
-                Label("Home", systemImage: "house").tag(Section.home)
-                Label("Movies", systemImage: "film").tag(Section.movies)
-                Label("Shows", systemImage: "tv").tag(Section.shows)
-                Label("Search", systemImage: "magnifyingglass").tag(Section.search)
+            Group {
+                if Screenshots.active {
+                    // The native sidebar (NSTableView + vibrancy) can't be captured offscreen; draw the same rows.
+                    ShotSidebar(section: $section)
+                } else {
+                    List(selection: $section) {
+                        ForEach(Section.all, id: \.self) { s in Label(s.title, systemImage: s.icon).tag(s) }
+                    }
+                }
             }
             .navigationSplitViewColumnWidth(190)
             .safeAreaInset(edge: .bottom) {
@@ -198,7 +230,7 @@ struct MainView: View {
                         Label(n, systemImage: "play.fill").font(.caption).lineLimit(2).foregroundStyle(.tint)
                     }
                     HStack {
-                        Text(api.user?.Name ?? "").font(.caption).foregroundStyle(.secondary)
+                        Text(Screenshots.active ? "" : (api.user?.Name ?? "")).font(.caption).foregroundStyle(.secondary)
                         Spacer()
                         Menu {
                             Text(api.server?.absoluteString ?? "")
@@ -225,6 +257,10 @@ struct MainView: View {
             }
         }
         .onChange(of: section) { _, _ in path = NavigationPath() }
+        .onReceive(NotificationCenter.default.publisher(for: .candelaNavigate)) { n in
+            if let s = n.userInfo?["section"] as? Section { section = s }
+            if let i = n.userInfo?["item"] as? Item { path.append(i) }
+        }
         .alert("Playback", isPresented: Binding(get: { player.error != nil }, set: { if !$0 { player.error = nil } })) {
             Button("OK") { player.error = nil }
         } message: { Text(player.error ?? "") }
@@ -251,7 +287,7 @@ struct HomeView: View {
         }
         .navigationTitle("Home")
         .task { await load() }
-        .onReceive(NotificationCenter.default.publisher(for: .cinemaPlaybackEnded)) { _ in Task { await load() } }
+        .onReceive(NotificationCenter.default.publisher(for: .candelaPlaybackEnded)) { _ in Task { await load() } }
     }
 
     private func load() async {
@@ -369,10 +405,15 @@ struct LibraryView: View {
         .navigationTitle("\(title) (\(items.count))")
         .toolbar {
             Toggle(isOn: $unplayedOnly) { Label("Unwatched", systemImage: "eye.slash") }
-            Picker("Sort", selection: $sortBy) { ForEach(sorts, id: \.0) { Text($0.1).tag($0.0) } }.frame(width: 150)
+            Menu {
+                Picker("Sort", selection: $sortBy) { ForEach(sorts, id: \.0) { Text($0.1).tag($0.0) } }.pickerStyle(.inline)
+            } label: {
+                Label("Sort: \(sorts.first { $0.0 == sortBy }?.1 ?? "Title")", systemImage: "arrow.up.arrow.down")
+                    .labelStyle(.titleAndIcon)
+            }
         }
         .task(id: "\(type)\(sortBy)\(unplayedOnly)") { await load() }
-        .onReceive(NotificationCenter.default.publisher(for: .cinemaPlaybackEnded)) { _ in Task { await load() } }
+        .onReceive(NotificationCenter.default.publisher(for: .candelaPlaybackEnded)) { _ in Task { await load() } }
     }
 
     private func load() async {
@@ -437,7 +478,7 @@ struct DetailView: View {
         .ignoresSafeArea(edges: .top)
         .navigationTitle(item?.SeriesName ?? item?.Name ?? "")
         .task { await load() }
-        .onReceive(NotificationCenter.default.publisher(for: .cinemaPlaybackEnded)) { _ in Task { await load() } }
+        .onReceive(NotificationCenter.default.publisher(for: .candelaPlaybackEnded)) { _ in Task { await load() } }
     }
 
     private func header(_ item: Item) -> some View {
@@ -630,7 +671,7 @@ struct SeriesView: View {
             if season == nil { season = seasons.first(where: { ($0.UserData?.Played ?? false) == false })?.Id ?? seasons.first?.Id }
         }
         .task(id: season) { await loadEpisodes() }
-        .onReceive(NotificationCenter.default.publisher(for: .cinemaPlaybackEnded)) { _ in Task { await loadEpisodes() } }
+        .onReceive(NotificationCenter.default.publisher(for: .candelaPlaybackEnded)) { _ in Task { await loadEpisodes() } }
     }
 
     private func loadEpisodes() async {

@@ -1,15 +1,15 @@
 # Third-party software
 
-Release builds of Cinema bundle **mpv** and the libraries it links against, copied unmodified from
-Homebrew's bottles (macOS arm64). They keep their own licences, listed below. Cinema's own code is MIT
-(see `LICENSE`); the bundled components are separate programs and libraries that Cinema runs, not part
-of Cinema's source.
+Release builds of Candela bundle **mpv** and the libraries it links against, copied unmodified from
+Homebrew's bottles (macOS arm64). They keep their own licences, listed below. Candela's own code is MIT
+(see `LICENSE`); the bundled components are separate programs and libraries that Candela runs, not part
+of Candela's source.
 
 **GPL notice.** mpv and FFmpeg as built by Homebrew are licensed under the GPL (FFmpeg is built with
 `--enable-gpl`). The corresponding source code for every component is available from its upstream
 project (links below) and from Homebrew's formula for the exact version listed
 (`brew info <name>` / `brew fetch --build-from-source <name>`). If you need a copy of the exact sources
-used for a Cinema release, open an issue and it will be provided.
+used for a Candela release, open an issue and it will be provided.
 
 | Component | Version | Licence | Files |
 |---|---|---|---|

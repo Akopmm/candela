@@ -1,12 +1,21 @@
-# Cinema
+# Candela
 
-**A Jellyfin client for macOS that plays your files directly, in real HDR, with Dolby Vision metadata — on the MacBook Pro's XDR display.**
+**A Jellyfin client for macOS that plays your files directly, in real HDR, with Dolby Vision metadata and
+head-tracked Spatial Audio — on the MacBook Pro's XDR display.**
 
-Cinema is a native SwiftUI library browser on top of [mpv](https://mpv.io) and
+![Candela — library and detail page](docs/screenshots/hero.png)
+
+Candela is a native SwiftUI library browser on top of [mpv](https://mpv.io) and
 [libplacebo](https://code.videolan.org/videolan/libplacebo). It streams the original file from your
 server — no transcoding, no remuxing — and renders it with a configuration tuned for Apple's HDR displays.
 
-> Screenshots: _add yours here_ (macOS screenshots of HDR content come out SDR, so they understate the picture).
+*The name: a nit, the unit HDR brightness is measured in, is one candela per square metre.*
+
+| Home | Show |
+|---|---|
+| ![Home](docs/screenshots/home.png) | ![Show](docs/screenshots/series.png) |
+
+> macOS screenshots are always captured in SDR, so they can't show the HDR picture itself — only the app.
 
 ## Why
 
@@ -19,7 +28,7 @@ corrections welcome via an issue):
 | Swiftfin – Native player | ✅ | ✅ | ❌ remuxed to HLS; PGS subtitles force a full transcode | remux / transcode |
 | Jellyfin Media Player | ⚠️ tone-mapped | ❌ | ✅ | none |
 | Infuse Pro (paid) | ✅ | ✅ certified | ✅ | none |
-| **Cinema** | ✅ | ✅ libplacebo | ✅ | **none** |
+| **Candela** | ✅ | ✅ libplacebo | ✅ | **none** |
 
 What you get when you press Play on a 4K Dolby Vision remux:
 
@@ -54,7 +63,7 @@ macOS's EDR compositor — highlights go up to the panel's 1600 nits while SDR w
 
 ## Picture settings
 
-The defaults live in [`Resources/cinema.conf`](Resources/cinema.conf):
+The defaults live in [`Resources/candela.conf`](Resources/candela.conf):
 
 - `vo=gpu-next`, `gpu-context=macvk`, `target-colorspace-hint=yes` — libplacebo over Vulkan/Metal with real HDR output
 - `hwdec=videotoolbox` — hardware decoding, Dolby Vision metadata preserved
@@ -63,8 +72,8 @@ The defaults live in [`Resources/cinema.conf`](Resources/cinema.conf):
 - `image-subs-hdr-peak=sdr` — PGS subtitles stay at SDR brightness in HDR films
 - `ao=avfoundation` — multichannel audio handed to Apple's renderer for Spatial Audio (CoreAudio as fallback)
 
-Override anything in `~/Library/Application Support/Cinema/mpv/mpv.conf`. mpv's log for the last playback is
-`~/Library/Application Support/Cinema/mpv.log` — the first place to look if something's off.
+Override anything in `~/Library/Application Support/Candela/mpv/mpv.conf`. mpv's log for the last playback is
+`~/Library/Application Support/Candela/mpv.log` — the first place to look if something's off.
 
 In the player: <kbd>Space</kbd> pause · <kbd>←</kbd>/<kbd>→</kbd> 5 s · <kbd>↑</kbd>/<kbd>↓</kbd> 1 min ·
 <kbd>#</kbd> audio track · <kbd>j</kbd> subtitles · <kbd>i</kbd> stats · <kbd>q</kbd> quit (position is saved).
@@ -73,11 +82,11 @@ In the player: <kbd>Space</kbd> pause · <kbd>←</kbd>/<kbd>→</kbd> 5 s · <k
 
 Requirements: **Apple Silicon Mac, macOS 14 or newer, Jellyfin 10.9 or newer** (developed against Jellyfin 12.2).
 
-1. Download `Cinema-<version>-arm64.zip` from [Releases](../../releases), unzip, move **Cinema** to Applications.
+1. Download `Candela-<version>-arm64.zip` from [Releases](../../releases), unzip, move **Candela** to Applications.
 2. The app isn't notarized by Apple (that needs a paid developer account), so the first launch is blocked.
    Either right-click → **Open** → **Open**, or run:
    ```
-   xattr -dr com.apple.quarantine /Applications/Cinema.app
+   xattr -dr com.apple.quarantine /Applications/Candela.app
    ```
 3. Pick your server (or let it find one on the LAN), sign in with Quick Connect or your password.
    Allow *local network* access when macOS asks.
@@ -89,8 +98,8 @@ Release builds are self-contained — mpv and its libraries are inside the app; 
 ```
 xcode-select --install          # Command Line Tools are enough; Xcode isn't needed
 brew install mpv
-./build.sh                      # dev build → ~/Applications/Cinema.app, uses Homebrew's mpv
-./build.sh --release            # self-contained build → dist/Cinema-<version>-arm64.zip
+./build.sh                      # dev build → ~/Applications/Candela.app, uses Homebrew's mpv
+./build.sh --release            # self-contained build → dist/Candela-<version>-arm64.zip
 ```
 
 `scripts/bundle_mpv.py` copies mpv and its ~50 dylibs into the bundle, rewrites their install names and
@@ -108,7 +117,7 @@ re-signs them, and adds a MoltenVK driver manifest so the Vulkan loader never lo
 
 ## Licence
 
-Cinema's code is MIT — see [LICENSE](LICENSE). Release builds bundle mpv, FFmpeg and other libraries under
+Candela's code is MIT — see [LICENSE](LICENSE). Release builds bundle mpv, FFmpeg and other libraries under
 their own licences (mpv and FFmpeg as built here are GPL); see [THIRD_PARTY.md](THIRD_PARTY.md).
 "Dolby Vision" is a trademark of Dolby Laboratories; this project is not affiliated with or endorsed by Dolby
 or the Jellyfin project.

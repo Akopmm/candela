@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build Cinema.app.
+# Build Candela.app.
 #   ./build.sh             dev build: uses Homebrew's mpv at runtime, installs to ~/Applications
 #   ./build.sh --release   self-contained build: mpv + libraries bundled, zipped into dist/
 # Needs the Xcode Command Line Tools and `brew install mpv`.
@@ -9,17 +9,17 @@ cd "$(dirname "$0")"
 RELEASE=0
 [ "${1:-}" = "--release" ] && RELEASE=1
 
-APP=build/Cinema.app
+APP=build/Candela.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 swiftc -O -parse-as-library -swift-version 5 \
   -target arm64-apple-macos14.0 \
   -framework SwiftUI -framework AppKit -framework Security \
-  Sources/*.swift -o "$APP/Contents/MacOS/Cinema"
+  Sources/*.swift -o "$APP/Contents/MacOS/Candela"
 
-cp Resources/Info.plist Resources/cinema.conf Resources/AppIcon.icns "$APP/Contents/" 2>/dev/null || true
-mv "$APP/Contents/cinema.conf" "$APP/Contents/AppIcon.icns" "$APP/Contents/Resources/"
+cp Resources/Info.plist Resources/candela.conf Resources/AppIcon.icns "$APP/Contents/" 2>/dev/null || true
+mv "$APP/Contents/candela.conf" "$APP/Contents/AppIcon.icns" "$APP/Contents/Resources/"
 
 if [ $RELEASE = 1 ]; then
   python3 scripts/bundle_mpv.py "$APP"
@@ -31,12 +31,12 @@ codesign --force --sign - "$APP"
 if [ $RELEASE = 1 ]; then
   VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Resources/Info.plist)
   mkdir -p dist
-  rm -f "dist/Cinema-$VERSION-arm64.zip"
-  ditto -c -k --keepParent "$APP" "dist/Cinema-$VERSION-arm64.zip"
-  echo "Built dist/Cinema-$VERSION-arm64.zip"
+  rm -f "dist/Candela-$VERSION-arm64.zip"
+  ditto -c -k --keepParent "$APP" "dist/Candela-$VERSION-arm64.zip"
+  echo "Built dist/Candela-$VERSION-arm64.zip"
 else
   mkdir -p ~/Applications
-  rm -rf ~/Applications/Cinema.app
+  rm -rf ~/Applications/Candela.app
   cp -R "$APP" ~/Applications/
-  echo "Installed ~/Applications/Cinema.app"
+  echo "Installed ~/Applications/Candela.app"
 fi

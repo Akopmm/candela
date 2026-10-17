@@ -33,7 +33,7 @@ final class Jellyfin: ObservableObject {
         let raw = Host.current().localizedName ?? ""
         let ascii = String(raw.unicodeScalars.filter { $0.isASCII && $0 != "\"" }).trimmingCharacters(in: .whitespaces)
         let device = ascii.count >= 3 ? ascii : "Mac"
-        var s = "MediaBrowser Client=\"Cinema\", Device=\"\(device)\", DeviceId=\"\(deviceId)\", Version=\"\(Self.version)\""
+        var s = "MediaBrowser Client=\"Candela\", Device=\"\(device)\", DeviceId=\"\(deviceId)\", Version=\"\(Self.version)\""
         if let t = token { s += ", Token=\"\(t)\"" }
         return s
     }
@@ -290,7 +290,7 @@ final class Jellyfin: ObservableObject {
 
 /// The access token lives in the login keychain, not in plain preferences.
 enum Keychain {
-    private static let service = Bundle.main.bundleIdentifier ?? "cinema"
+    private static let service = Bundle.main.bundleIdentifier ?? "candela"
 
     static func set(_ value: String, _ key: String) {
         delete(key)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Copy Homebrew's mpv and every non-system dylib it needs into Cinema.app, so users don't need Homebrew.
+"""Copy Homebrew's mpv and every non-system dylib it needs into Candela.app, so users don't need Homebrew.
 
-    scripts/bundle_mpv.py build/Cinema.app
+    scripts/bundle_mpv.py build/Candela.app
 
 Result:
     Contents/MacOS/mpv                      the mpv binary
