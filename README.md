@@ -3,6 +3,10 @@
 **A Jellyfin client for macOS that plays your files directly, in real HDR, with Dolby Vision metadata and
 head-tracked Spatial Audio — on the MacBook Pro's XDR display.**
 
+> **Built with AI.** Candela was developed primarily by Claude (Anthropic's AI) at my direction; I specified
+> the features and tested every release on my own Jellyfin server and MacBook Pro. The picture and sound
+> come from mpv, libplacebo and FFmpeg. Judge it accordingly — issues and code review welcome.
+
 ![Candela — library and detail page](docs/screenshots/hero.png)
 
 Candela is a native SwiftUI library browser on top of [mpv](https://mpv.io) and
