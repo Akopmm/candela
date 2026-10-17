@@ -75,6 +75,12 @@ final class MPVPlayer: ObservableObject {
         bundledMPV ?? ["/opt/homebrew/bin/mpv", "/usr/local/bin/mpv"].first { FileManager.default.isExecutableFile(atPath: $0) }
     }
 
+    static var screenshotDir: URL {
+        let d = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)[0].appendingPathComponent("Candela")
+        try? FileManager.default.createDirectory(at: d, withIntermediateDirectories: true)
+        return d
+    }
+
     static var supportDir: URL {
         let d = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Candela")
         try? FileManager.default.createDirectory(at: d.appendingPathComponent("mpv"), withIntermediateDirectories: true)
@@ -103,6 +109,9 @@ final class MPVPlayer: ObservableObject {
             "--http-header-fields-append=Authorization: \(api.authorization)",
             "--force-media-title=\(title)",
             "--log-file=\(Self.supportDir.appendingPathComponent("mpv.log").path)",
+            // mpv runs with "/" as its working directory, so `s` (screenshot) needs somewhere writable.
+            "--screenshot-dir=\(Self.screenshotDir.path)",
+            "--screenshot-template=\(title.replacingOccurrences(of: "/", with: "-")) %wH.%wM.%wS",
             "--msg-level=all=info,vo=v",
         ]
         if let conf = Bundle.main.url(forResource: "candela", withExtension: "conf") {
