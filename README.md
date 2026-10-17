@@ -41,6 +41,9 @@ macOS's EDR compositor — highlights go up to the panel's 1600 nits while SDR w
 - **Detail page** — quality badges (4K · Dolby Vision 8 · HDR10 · Atmos · TrueHD · DTS-HD MA · bitrate · size),
   audio and subtitle pickers, Resume / From start / Mark watched
 - **Direct play** of the original file; every codec FFmpeg knows, including TrueHD, DTS-HD MA and PGS subtitles
+- **Spatial Audio** — 5.1/7.1 tracks (TrueHD, DTS-HD MA, DD+ …) reach macOS as discrete channels through
+  `AVSampleBufferAudioRenderer`, so AirPods get head-tracked Spatial Audio and the built-in speakers get
+  virtual surround, instead of a stereo downmix
 - **Remembers your language** — pick an audio language once and every film starts in it, on the
   best-quality track available in that language (Atmos > TrueHD > DTS-HD MA > …)
 - **Progress sync** — position is reported to Jellyfin every 10 s, so Continue Watching matches your TV
@@ -58,6 +61,7 @@ The defaults live in [`Resources/cinema.conf`](Resources/cinema.conf):
 - `profile=high-quality`, `ewa_lanczossharp` up/chroma scaling, `mitchell` downscaling, debanding
 - `video-sync=display-resample` — judder-free 23.976 fps on ProMotion
 - `image-subs-hdr-peak=sdr` — PGS subtitles stay at SDR brightness in HDR films
+- `ao=avfoundation` — multichannel audio handed to Apple's renderer for Spatial Audio (CoreAudio as fallback)
 
 Override anything in `~/Library/Application Support/Cinema/mpv/mpv.conf`. mpv's log for the last playback is
 `~/Library/Application Support/Cinema/mpv.log` — the first place to look if something's off.
